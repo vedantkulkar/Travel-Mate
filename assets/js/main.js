@@ -4,7 +4,6 @@ const navMenu = document.getElementById('nav-menu'),
       navClose = document.getElementById('nav-close')
 
 /*===== MENU SHOW =====*/
-/* Validate if constant exists */
 if(navToggle){
     navToggle.addEventListener('click', () =>{
         navMenu.classList.add('show-menu')
@@ -12,7 +11,6 @@ if(navToggle){
 }
 
 /*===== MENU HIDDEN =====*/
-/* Validate if constant exists */
 if(navClose){
     navClose.addEventListener('click', () =>{
         navMenu.classList.remove('show-menu')
@@ -25,10 +23,9 @@ const navLink = document.querySelectorAll('.nav__link')
 function linkAction(){
     const navMenu = document.getElementById('nav-menu')
     // When we click on each nav__link, we remove the show-menu class
-    navMenu.classList.remove('show-menu')
+    if(navMenu) navMenu.classList.remove('show-menu')
 }
 navLink.forEach(n => n.addEventListener('click', linkAction))
-
 
 /*==================== CHANGE BACKGROUND HEADER ====================*/
 function scrollHeader(){
@@ -57,6 +54,7 @@ const videoFile = document.getElementById('video-file'),
       videoIcon = document.getElementById('video-icon')
 
 function playPause(){ 
+    if(!videoFile) return
     if (videoFile.paused){
         // Play video
         videoFile.play()
@@ -66,28 +64,26 @@ function playPause(){
     }
     else {
         // Pause video
-        videoFile.pause(); 
+        videoFile.pause() 
         // We change the icon
         videoIcon.classList.remove('ri-pause-line')
         videoIcon.classList.add('ri-play-line')
-
     }
 }
-videoButton.addEventListener('click', playPause)
+if(videoButton) videoButton.addEventListener('click', playPause)
 
 function finalVideo(){
+    if(!videoIcon) return
     // Video ends, icon change
     videoIcon.classList.remove('ri-pause-line')
     videoIcon.classList.add('ri-play-line')
 }
-// ended, when the video ends
-videoFile.addEventListener('ended', finalVideo)
-
+if(videoFile) videoFile.addEventListener('ended', finalVideo)
 
 /*==================== SHOW SCROLL UP ====================*/ 
 function scrollUp(){
-    const scrollUp = document.getElementById('scroll-up');
-    // When the scroll is higher than 200 viewport height, add the show-scroll class to the a tag with the scroll-top class
+    const scrollUp = document.getElementById('scroll-up')
+    // When the scroll is higher than 200 viewport height, add the show-scroll class
     if(this.scrollY >= 200) scrollUp.classList.add('show-scroll'); else scrollUp.classList.remove('show-scroll')
 }
 window.addEventListener('scroll', scrollUp)
@@ -100,48 +96,20 @@ function scrollActive(){
 
     sections.forEach(current =>{
         const sectionHeight = current.offsetHeight
-        const sectionTop = current.offsetTop - 50;
-        sectionId = current.getAttribute('id')
+        const sectionTop = current.offsetTop - 80
+        const sectionId = current.getAttribute('id')
+        const targetLink = document.querySelector('.nav__menu a[href*=' + sectionId + ']')
 
-        if(scrollY > sectionTop && scrollY <= sectionTop + sectionHeight){
-            document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.add('active-link')
-        }else{
-            document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.remove('active-link')
+        if(targetLink) {
+            if(scrollY > sectionTop && scrollY <= sectionTop + sectionHeight){
+                targetLink.classList.add('active-link')
+            }else{
+                targetLink.classList.remove('active-link')
+            }
         }
     })
 }
 window.addEventListener('scroll', scrollActive)
-
-/*==================== SCROLL REVEAL ANIMATION ====================*/
-const sr = ScrollReveal({
-    distance: '60px',
-    duration: 2800,
-    // reset: true,
-})
-
-
-sr.reveal(`.home__data, .home__social-link, .home__info,
-           .discover__container,
-           .experience__data, .experience__overlay,
-           .place__card,
-           .sponsor__content,
-           .footer__data, .footer__rights`,{
-    origin: 'top',
-    interval: 100,
-})
-
-sr.reveal(`.about__data, 
-           .video__description,
-           .subscribe__description`,{
-    origin: 'left',
-})
-
-sr.reveal(`.about__img-overlay, 
-           .video__content,
-           .subscribe__form`,{
-    origin: 'right',
-    interval: 100,
-})
 
 /*==================== DARK LIGHT THEME ====================*/ 
 const themeButton = document.getElementById('theme-button')
@@ -157,18 +125,149 @@ const getCurrentTheme = () => document.body.classList.contains(darkTheme) ? 'dar
 const getCurrentIcon = () => themeButton.classList.contains(iconTheme) ? 'ri-moon-line' : 'ri-sun-line'
 
 // We validate if the user previously chose a topic
-if (selectedTheme) {
-  // If the validation is fulfilled, we ask what the issue was to know if we activated or deactivated the dark
+if (selectedTheme && themeButton) {
   document.body.classList[selectedTheme === 'dark' ? 'add' : 'remove'](darkTheme)
   themeButton.classList[selectedIcon === 'ri-moon-line' ? 'add' : 'remove'](iconTheme)
 }
 
 // Activate / deactivate the theme manually with the button
-themeButton.addEventListener('click', () => {
-    // Add or remove the dark / icon theme
-    document.body.classList.toggle(darkTheme)
-    themeButton.classList.toggle(iconTheme)
-    // We save the theme and the current icon that the user chose
-    localStorage.setItem('selected-theme', getCurrentTheme())
-    localStorage.setItem('selected-icon', getCurrentIcon())
+if(themeButton) {
+    themeButton.addEventListener('click', () => {
+        document.body.classList.toggle(darkTheme)
+        themeButton.classList.toggle(iconTheme)
+        localStorage.setItem('selected-theme', getCurrentTheme())
+        localStorage.setItem('selected-icon', getCurrentIcon())
+    })
+}
+
+/*==================== RESERVATION MODAL ====================*/
+const bookingModal = document.getElementById('booking-modal'),
+      modalOverlay = document.getElementById('modal-overlay'),
+      modalClose = document.getElementById('modal-close'),
+      openModalBtns = document.querySelectorAll('.open-modal-btn'),
+      modalDestinationInput = document.getElementById('modal-destination'),
+      bookingForm = document.getElementById('booking-form')
+
+function openModal(destinationName) {
+    if(bookingModal) {
+        if(modalDestinationInput && destinationName) {
+            modalDestinationInput.value = destinationName
+        }
+        bookingModal.classList.add('modal--open')
+        bookingModal.setAttribute('aria-hidden', 'false')
+        document.body.style.overflow = 'hidden'
+    }
+}
+
+function closeModal() {
+    if(bookingModal) {
+        bookingModal.classList.remove('modal--open')
+        bookingModal.setAttribute('aria-hidden', 'true')
+        document.body.style.overflow = ''
+    }
+}
+
+if(openModalBtns) {
+    openModalBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault()
+            const place = btn.getAttribute('data-place') || 'Selected Tour Package'
+            openModal(place)
+        })
+    })
+}
+
+if(modalClose) modalClose.addEventListener('click', closeModal)
+if(modalOverlay) modalOverlay.addEventListener('click', closeModal)
+
+window.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && bookingModal && bookingModal.classList.contains('modal--open')) {
+        closeModal()
+    }
 })
+
+/*==================== TOAST NOTIFICATION ====================*/
+const toast = document.getElementById('toast'),
+      toastTitle = document.getElementById('toast-title'),
+      toastMessage = document.getElementById('toast-message'),
+      toastIcon = document.getElementById('toast-icon')
+let toastTimeout
+
+function showToast(title, message, iconClass = 'ri-checkbox-circle-fill') {
+    if(!toast) return
+    clearTimeout(toastTimeout)
+    toastTitle.textContent = title
+    toastMessage.textContent = message
+    toastIcon.innerHTML = `<i class="${iconClass}"></i>`
+    toast.classList.add('toast--show')
+
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('toast--show')
+    }, 4500)
+}
+
+/*==================== FORM SUBMISSIONS ====================*/
+if(bookingForm) {
+    bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const destination = modalDestinationInput ? modalDestinationInput.value : 'vacation'
+        closeModal()
+        bookingForm.reset()
+        showToast('Reservation Requested! 🌴', `Your booking inquiry for ${destination} has been placed. Our advisor will confirm within 24 hours.`)
+    })
+}
+
+const contactForm = document.getElementById('contact-form')
+if(contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const name = document.getElementById('contact-name')?.value || 'Traveler'
+        contactForm.reset()
+        showToast('Message Sent! ✈️', `Thank you ${name}, our travel concierge has received your request.`)
+    })
+}
+
+const subscribeForm = document.getElementById('subscribe-form')
+if(subscribeForm) {
+    subscribeForm.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const email = document.getElementById('subscribe-email')?.value || 'your email'
+        subscribeForm.reset()
+        showToast('Discount Activated! 🎉', `Your 30% discount coupon code has been sent to ${email}.`)
+    })
+}
+
+/*==================== SCROLL REVEAL ANIMATION ====================*/
+if(typeof ScrollReveal !== 'undefined') {
+    const sr = ScrollReveal({
+        distance: '60px',
+        duration: 2500,
+        // reset: true,
+    })
+
+    sr.reveal(`.home__data, .home__social-link, .home__info,
+               .discover__container,
+               .place__card,
+               .offers__card,
+               .contact__card,
+               .sponsor__content,
+               .footer__data, .footer__rights`,{
+        origin: 'top',
+        interval: 100,
+    })
+
+    sr.reveal(`.about__data, 
+               .video__description,
+               .subscribe__description,
+               .contact__info`,{
+        origin: 'left',
+    })
+
+    sr.reveal(`.about__img-overlay, 
+               .video__content,
+               .subscribe__form,
+               .contact__form`,{
+        origin: 'right',
+        interval: 100,
+    })
+}
